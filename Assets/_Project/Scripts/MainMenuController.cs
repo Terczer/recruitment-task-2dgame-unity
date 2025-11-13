@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class MainMenuController : MenuController
@@ -7,16 +8,18 @@ public class MainMenuController : MenuController
     [SerializeField] private Button PlayButton;
     [SerializeField] private Button SettingsButton;
     [SerializeField] private Button ExitButton;
-
-    private void OnEnable()
+   
+    protected override void OnEnable()
     {
+        base.OnEnable();
         PlayButton.onClick.AddListener(PlayGame);
         SettingsButton.onClick.AddListener(OpenSettings);
         ExitButton.onClick.AddListener(ExitGame);
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         PlayButton.onClick.RemoveListener(PlayGame);
         SettingsButton.onClick.RemoveListener(OpenSettings);
         ExitButton.onClick.RemoveListener(ExitGame);

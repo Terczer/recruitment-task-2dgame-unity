@@ -1,40 +1,63 @@
 using UnityEngine;
+using Zenject;
 
 public class GameplayManager : MonoBehaviour
 {
-    // TODO: Inject dependency via Zenject
     [SerializeField] private MenusManager menusManager;
     [SerializeField] private EnemySpawner enemySpawner;
-    [SerializeField] private PlayerController playerController;
+    [SerializeField] private PlayerSpawner playerSpawner;
+    private PlayerControls controls;
+
+    [Inject]
+    public void Setup(MenusManager menusManager, PlayerSpawner playerSpawner, EnemySpawner enemySpawner)
+    {
+        this.menusManager = menusManager;
+        this.playerSpawner = playerSpawner;
+        this.enemySpawner = enemySpawner;
+    }
+
+    private void Awake()
+    {
+        controls = new PlayerControls();
+        controls.UI.Pause.performed += ctx =>
+        {
+            StopGame();
+            ResetGame();
+        };
+    }
 
     private void OnEnable()
     {
         menusManager.OnGameStarted += StartGame;
+        controls.Enable();
     }
 
     private void OnDisable()
     {
         menusManager.OnGameStarted -= StartGame;
+        controls.Disable();
     }
 
 
     #region Game Control Methods
     public void ResetGame()
     {
-        enemySpawner.DestroyAll();
-        playerController.CanMove = false;
-        menusManager.MainMenuController.Display(true);
+        playerSpawner.PlayerController.Reset();
+        enemySpawner.Reset();
     }
 
     public void StartGame()
     {
-        playerController.CanMove = true;
+        playerSpawner.PlayerController.DisplayAndMove(true);
         enemySpawner.Spawn();
     }
 
     public void StopGame()
     {
-
+        enemySpawner.DisplayAndMoveAll(false);
+        playerSpawner.PlayerController.DisplayAndMove(false);
+        menusManager.CloseAllMenus();
+        menusManager.MainMenuController.Display(true);
     }
     #endregion
 }

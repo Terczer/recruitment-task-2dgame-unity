@@ -1,0 +1,99 @@
+using System.Collections;
+using UnityEngine;
+
+public class EnemyController : MonoBehaviour
+{
+    [SerializeField] private Transform player;
+    [SerializeField] private float speed = 2f;
+    [SerializeField] private float thresholdDistance = 5f;
+    private Camera cam;
+    //private IEnumerator movementCoroutine;
+    private bool canMove = false;
+
+    public Transform Player { get => player; set => player = value; }
+
+    private void Awake()
+    {
+        cam = Camera.main;
+        //movementCoroutine = MovementCoroutine();
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            StopMovement();
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        Move();
+    }
+
+
+    #region Movement
+    public void StartMovement()
+    {
+        //StartCoroutine(movementCoroutine);
+        canMove = true;
+    }
+
+    public void StopMovement()
+    {
+        //StopCoroutine(movementCoroutine);
+        canMove = false;
+    }
+
+    //private IEnumerator MovementCoroutine()
+    //{
+    //    while (true)
+    //    {
+    //        if (player == null) yield break;
+    //        float sqrDistance = (transform.position - player.position).sqrMagnitude;
+    //        Vector3 direction;
+    //        if (sqrDistance < thresholdDistance * thresholdDistance)
+    //        {
+    //            // Run away from player
+    //            direction = (transform.position - player.position).normalized;
+    //        }
+    //        else
+    //        {
+    //            // Close up to player
+    //            direction = (player.position - transform.position).normalized;
+    //        }
+    //        Vector3 newPos = transform.position + direction * speed * Time.deltaTime;
+    //        // Clamp to screen
+    //        Vector3 vp = cam.WorldToViewportPoint(newPos);
+    //        vp.x = Mathf.Clamp01(vp.x);
+    //        vp.y = Mathf.Clamp01(vp.y);
+    //        transform.position = cam.ViewportToWorldPoint(vp);
+    //        // Delay
+    //        yield return new WaitForSeconds(0.025f);
+    //    }
+    //}
+
+    private void Move()
+    {
+        if (player == null) return;
+        float sqrDistance = (transform.position - player.position).sqrMagnitude;
+        Vector3 direction;
+        if (sqrDistance < thresholdDistance * thresholdDistance)
+        {
+            // Run away from player
+            direction = (transform.position - player.position).normalized;
+        }
+        else
+        {
+            // Close up to player
+            direction = (player.position - transform.position).normalized;
+        }
+        Vector3 newPos = transform.position + direction * speed * Time.deltaTime;
+        // Clamp to screen
+        Vector3 vp = cam.WorldToViewportPoint(newPos);
+        vp.x = Mathf.Clamp01(vp.x);
+        vp.y = Mathf.Clamp01(vp.y);
+        transform.position = cam.ViewportToWorldPoint(vp);
+    }
+    #endregion
+}

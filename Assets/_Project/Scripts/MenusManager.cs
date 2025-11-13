@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Zenject;
 
 public class MenusManager : MonoBehaviour
 {
@@ -11,12 +12,19 @@ public class MenusManager : MonoBehaviour
 
     public event Action OnGameStarted;
 
+    [Inject]
+    public void Setup(MenuController mainMenu, MenuController settingsMenu)
+    {
+        this.mainMenuController = mainMenu;
+        this.settingsMenuController = settingsMenu;
+    }
 
     private void Start()
     {
         CloseAllMenus();
         mainMenuController.Display(true);
     }
+
 
     #region Menu Methods
     public void CloseAllMenus()

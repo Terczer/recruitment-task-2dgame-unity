@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private Transform player;
+    [SerializeField] private PlayerSpawner playerSpawner;
     [SerializeField] private int enemiesNumber = 1000;
     private List<EnemyController> enemiesPool = new List<EnemyController>();
 
     public List<EnemyController> EnemiesPool { get => enemiesPool; }
 
+    [Inject]
+    public void Setup(PlayerSpawner playerSpawner)
+    {
+        this.playerSpawner = playerSpawner;
+    }
 
     #region methods
     public void Spawn()
@@ -20,10 +26,10 @@ public class EnemySpawner : MonoBehaviour
         }
         else
         {
-            enemiesPool.ForEach(x =>
+            enemiesPool.ForEach(e =>
             {
-                x.gameObject.SetActive(true);
-                x.StartMovement();
+                e.Display(true);
+                e.SetMovement(true);
             });
         }
     }
@@ -35,15 +41,36 @@ public class EnemySpawner : MonoBehaviour
             Vector2 pos = new Vector2(Random.Range(-8f, 8f), Random.Range(-4f, 4f));
             GameObject enemy = Instantiate(enemyPrefab, pos, Quaternion.identity);
             EnemyController enemyController = enemy.GetComponent<EnemyController>();
-            enemyController.Player = player;
-            enemyController.StartMovement();
+            InitializeEnemy(enemyController);
             enemiesPool.Add(enemyController);
         }
     }
 
-    public void DestroyAll()
+    private void InitializeEnemy(EnemyController enemyController)
     {
-        enemiesPool.ForEach(x => x.StopMovement());
+        enemyController.Player = playerSpawner.PlayerController.transform;
+        enemyController.SetMovement(true);
+        enemyController.Display(true);
+    }
+
+    public void StopAll()
+    {
+        enemiesPool.ForEach(x => x.SetMovement(false));
+    }
+
+    public void DisplayAndMoveAll(bool state)
+    {
+        enemiesPool.ForEach(x => {
+            x.SetMovement(state);
+            x.Display(state);
+        });
+    }
+
+    public void Reset()
+    {
+        enemiesPool.ForEach(e => {
+            e.Reset();   
+        });
     }
     #endregion
 }

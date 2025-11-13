@@ -6,13 +6,15 @@ public class SettingsMenuController : MenuController
     [Header("UI References")]
     [SerializeField] private Button backButton;
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         backButton.onClick.AddListener(BackToMainMenu);
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         backButton.onClick.RemoveListener(BackToMainMenu);
     }
 
